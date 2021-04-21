@@ -1,6 +1,6 @@
-create database reto3 collate utf8mb4_spanish_ci;
+create database retoGrupo1 collate utf8mb4_spanish_ci;
 
-use reto3;
+use retoGrupo1;
 
 /*Local cambiado por establecimiento porque local es una palabra reservada en SQL*/
 
@@ -11,20 +11,10 @@ Direccion varchar(40) not null,
 TipoNegocio enum ('BAR', 'CAFETERIA', 'RESTAURANTE') not null
 );
 
-
-create table empleado(
-DNI char(9) primary key,
-Nombre varchar(20) not null,
-Apellido varchar(25) not null,
-contrasena varchar(18) not null,
-NIF char(9) not null,
-constraint fk_NIF_empleado foreign key (NIF) references establecimiento (NIF) on update cascade
-);
-
 create table actividad(
 Transaccion int primary key,
 Fecha date not null,
-TotalOperacion float not null,
+TotalOperacion float not null, /* SE CALCULA MEDIANTE PROCEDIMIENTO */
 tipo enum ('TICKET', 'FACTURA', 'COMANDA', 'PEDIDO', 'APROVISIONAMIENTO') not null,
 NIF char(9) not null,
 constraint fk_NIF_actividad foreign key (NIF) references establecimiento (NIF) on update cascade
@@ -170,17 +160,6 @@ values ('23456789J', 'Ristorante Fuggini', 'Gran Vía 3', 'Restaurante') ;
 
 insert into establecimiento
 values ('34567899K', 'Café Manolo', 'Montevideo 4', 'Cafeteria') ;
-
-/* Inserciones empleados */
-
-insert into empleado
-values ('12312122S', 'Jon', 'Zampon','Zampon', '12345678H') ;
-
-insert into empleado
-values ('75623142C', 'Kevin', 'Monasterio','12345', '23456789J') ;
-
-insert into empleado
-values ('85296365L', 'Maria', 'Zambrano','maria123', '34567899K') ;
 
 /* Inserciones Alimentos y productos */
 
