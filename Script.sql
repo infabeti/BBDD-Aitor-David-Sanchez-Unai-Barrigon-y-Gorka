@@ -412,7 +412,7 @@ values ('23456789J', 10);
 insert into carta
 values ('23456789J', 11);
 
-/*TRIGGERS*/
+/*TRIGGER*/
 
  delimiter &&
 create trigger actualizar1_stock
@@ -437,4 +437,30 @@ else
 		where Transaccion = new.Transaccion) and CodigoAlimento = new.CodigoAlimento;
 end if;
 end; &&
+
+/* FUNCION
+El campo boolean comanda sirve para calcular el precio de los platos si es de tipo comanda
+*/
+delimiter //
+create function ImporteTransacion(NumTrans int, comanda boolean) returns double
+reads sql data
+begin  
+	declare totalProductos double default 0;
+	declare totalPlatos double default 0;
+    
+	select sum(TotalProducto) into totalProductos from lineaproducto where transaccion = numtrans;
+    
+    if comanda = true then   
+        select round(plato.pvp * lineaplato.cantidad,2) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
+        and lineaplato.Transaccion = NumTrans;
+	end if;
+    
+    update actividad set totalOperacion = round(totalProductos + totalPlatos,2) where transaccion = numtrans;
+    
+    return round(totalProductos + totalPlatos,2);
+
+end
+// 
+
+/*select ImporteTransacion(4, false) "importeTotal";*/
 
