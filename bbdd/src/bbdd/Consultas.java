@@ -26,7 +26,8 @@ public class Consultas {
 				while (rs.next()) {
 					String nif = rs.getString("nif");
 					String nombre = rs.getString("nombre");
-					locales.add(new String[] {nif,nombre});
+					String tiponegocio = rs.getString("tiponegocio");
+					locales.add(new String[] {nif,nombre,tiponegocio});
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
