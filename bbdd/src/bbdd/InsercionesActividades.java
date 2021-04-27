@@ -1,6 +1,8 @@
 package bbdd;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -14,7 +16,7 @@ public class InsercionesActividades {
 	}
 
 	
-	public void insertarActividad(int transaccion, String fecha, double totalOperacion, String tipo, String nif) {
+	public void insertarActividad(int transaccion, String fecha, double totalOperacion, String tipo, String nif) throws SQLException {
 		try {
 			PreparedStatement st = null;
 
@@ -29,9 +31,32 @@ public class InsercionesActividades {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
 		} catch (SQLException sqlException) {
 			sqlException.printStackTrace();
-		}
+		}		
+	}
+	
+	public void ejecutarFuncion(int numTrans, String tipo) throws SQLException {
+		try {   
+			boolean comanda = false;
+			if(tipo.equalsIgnoreCase("comanda"))
+				comanda = true;
+			
+             CallableStatement cStmt = conexionConn.prepareCall(sentenciasBBDD.LLAMARFUNCION);    
+             cStmt.setInt(1, numTrans);    
+             cStmt.setBoolean(2, comanda);  
+             //cStmt.registerOutParameter("inOutParam", Types.INTEGER);    
+ 
+             cStmt.execute();   
+             //final ResultSet rs = cStmt.getResultSet();  
+ 
+             //int outputValue = cStmt.getInt("inOutParam");  
+            // System.out.println("Parametro de salida incrementado="+outputValue);  
+ 
+        }catch (Exception e) {  
+            e.printStackTrace();  
+        }
 	}
 	public void insertarPedido(int transaccion, String domicilio) {
 		try {

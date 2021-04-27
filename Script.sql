@@ -14,7 +14,7 @@ TipoNegocio enum ('BAR', 'CAFETERIA', 'RESTAURANTE') not null
 create table actividad(
 Transaccion int primary key,
 Fecha date not null,
-TotalOperacion float not null, /* SE CALCULA MEDIANTE PROCEDIMIENTO */
+TotalOperacion float not null default 0, /* SE CALCULA MEDIANTE PROCEDIMIENTO */
 tipo enum ('TICKET', 'FACTURA', 'COMANDA', 'PEDIDO', 'APROVISIONAMIENTO') not null,
 NIF char(9) not null,
 constraint fk_NIF_actividad foreign key (NIF) references establecimiento (NIF) on update cascade

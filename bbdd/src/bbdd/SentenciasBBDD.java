@@ -30,6 +30,7 @@ public class SentenciasBBDD {
 		protected final String COMPROBARSIESAPROVISIONAMIENTO = "select tipo from actividad where transaccion=?";
 		protected final String CONSEGUIRPRECIOPRODUCTO = "select PCompra from alimento where nombre=?";
 		protected final String CONSEGUIRLOCAL = "SELECT nif, nombre, tiponegocio FROM establecimiento";
+		protected final String LLAMARFUNCION = "select importetransacion(?, ?)";
 
 }
 
