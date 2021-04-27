@@ -1,9 +1,10 @@
 package bbdd;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class Inserciones {
 
@@ -61,7 +62,15 @@ public class Inserciones {
 					.prepareStatement(sentenciasBBDD.CODIGOALIMENTO);
 			st.setString(1, codigoAlimento);
 			st.setString(2, nif);
-			String fecha = "";
+			
+			Calendar fecha = new GregorianCalendar();
+                                                  
+			int anio = fecha.get(Calendar.YEAR);
+	        int mes = fecha.get(Calendar.MONTH);
+	        int dia = fecha.get(Calendar.DAY_OF_MONTH);
+	        
+	        String fechaAct = anio+"/"+mes+"/"+dia;
+			
 			try {
 				ResultSet rs = st.executeQuery();
 				rs.next();
@@ -76,14 +85,13 @@ public class Inserciones {
 						rs1.next();
 						int transaccion = this.consultas.leerNumTransBBDD();
 						double pcompra = rs1.getDouble("PCompra");
-						insercionesActividades.insertarActividad(transaccion,fecha,
+						insercionesActividades.insertarActividad(transaccion,fechaAct,
 								pcompra * 50, "aprovisionamiento", nif);
 						insercionesActividades.insertarAprovisionamiento(transaccion);
 						insertarProductoActividad(transaccion, codigoAlimento, 50, pcompra, nif);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
 				}
 
 			} catch (Exception e) {
