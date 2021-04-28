@@ -46,16 +46,26 @@ public class InsercionesActividades {
              CallableStatement cStmt = conexionConn.prepareCall(sentenciasBBDD.LLAMARFUNCION);    
              cStmt.setInt(1, numTrans);    
              cStmt.setBoolean(2, comanda);  
-             //cStmt.registerOutParameter("inOutParam", Types.INTEGER);    
- 
-             cStmt.execute();   
-             //final ResultSet rs = cStmt.getResultSet();  
- 
-             //int outputValue = cStmt.getInt("inOutParam");  
-            // System.out.println("Parametro de salida incrementado="+outputValue);  
- 
+             ResultSet rs = cStmt.executeQuery(); 
+            
+             
+             rs.next();
+              Double output = rs.getDouble(1);
+              
+              PreparedStatement st = null;
+
+  			st = (PreparedStatement) ((java.sql.Connection) conexionConn).prepareStatement(sentenciasBBDD.ACTUALIZARTOTALOPERACION);
+  			st.setDouble(1, output);
+  			st.setInt(2, numTrans);
+
+  			try {
+				st.executeUpdate();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+                   
         }catch (Exception e) {  
-            e.printStackTrace();  
+            e.printStackTrace();
         }
 	}
 	public void insertarPedido(int transaccion, String domicilio) {

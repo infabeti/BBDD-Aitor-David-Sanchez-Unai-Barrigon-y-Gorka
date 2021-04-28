@@ -455,8 +455,6 @@ begin
         and lineaplato.Transaccion = NumTrans;
 	end if;
     
-    update actividad set totalOperacion = round(totalProductos + totalPlatos,2) where transaccion = numtrans;
-    
     return round(totalProductos + totalPlatos,2);
 
 end

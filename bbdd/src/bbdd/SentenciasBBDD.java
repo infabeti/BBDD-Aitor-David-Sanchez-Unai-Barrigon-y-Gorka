@@ -31,6 +31,8 @@ public class SentenciasBBDD {
 		protected final String CONSEGUIRPRECIOPRODUCTO = "select PCompra from alimento where nombre=?";
 		protected final String CONSEGUIRLOCAL = "SELECT nif, nombre, tiponegocio FROM establecimiento";
 		protected final String LLAMARFUNCION = "select importetransacion(?, ?)";
+		protected final String ACTUALIZARTOTALOPERACION = "update actividad set totalOperacion = ? where transaccion = ?";
+
 
 }
 
