@@ -12,7 +12,7 @@ public class DataSourceService {
          if (null==basicDataSource){
              basicDataSource = new BasicDataSource();
              basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
-             basicDataSource.setUsername(USER);
+             basicDataSource.setUsername(USER); 
              basicDataSource.setPassword(PASS);
              basicDataSource.setUrl(URL);
              basicDataSource.setMaxActive(200);
