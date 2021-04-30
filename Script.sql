@@ -462,3 +462,52 @@ end
 
 /*select ImporteTransacion(4, false) "importeTotal";*/
 
+/*PROCEDIMIENTO*/
+delimiter //
+create procedure calculoBayesLocal(niflocal varchar(9), cod1 int, cod2 int) begin
+
+declare porcentaje double;
+declare codigo1 int;
+declare codigo2 int;
+declare cant1 int;
+declare cant2 int;
+declare TipoL enum('BAR','CAFETERIA','RESTAURANTE');
+             
+select CodigoAlimento into codigo1 from producto where CodigoAlimento = cod1;
+select CodigoAlimento into codigo2 from producto where CodigoAlimento = cod2;
+
+if codigo1 not in(Select CodigoAlimento
+from stock where NIF=niflocal)
+then
+             
+select concat("No existe un alimento con el código introducido en el local introducido");
+
+end if;
+
+if codigo2 not in(Select CodigoAlimento
+from stock where NIF=niflocal)
+then
+
+select concat("No existe un alimento con el código introducido en el local introducido");
+end if;
+
+
+select count(Transaccion) into cant1
+from lineaproducto
+where CodigoAlimento = codigo1
+and Transaccion in (select Transaccion
+from lineaproducto
+                  where CodigoAlimento = codigo2);
+
+select count(Transaccion) into cant2
+from lineaproducto
+where CodigoAlimento = codigo1;
+
+ set porcentaje =  cant1/cant2;
+ set porcentaje = porcentaje*100;
+ set TipoL = (select tiponegocio from establecimiento where NIF=niflocal);
+
+select concat(porcentaje) "Mensaje %";
+
+end;
+//
