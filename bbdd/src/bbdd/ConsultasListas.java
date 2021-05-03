@@ -1,6 +1,5 @@
 package bbdd;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,37 +9,26 @@ public class ConsultasListas {
 
 	private java.sql.Connection conexionConn;
 	private final SentenciasBBDD sentenciasBBDD = new SentenciasBBDD();
-	static final String Transaccion = "select max(Transaccion) from actividad";
 
 	public ConsultasListas(Conexion conexion) {
 		this.conexionConn = conexion.getConn();
 	}
 
-	public ArrayList<String[]> cogerProductosLocal(String NIFLocal) {
-		ArrayList<String[]> listaProd = new ArrayList<String[]>();
-
+	public ResultSet cogerProductosLocal(String NIFLocal) {
+		ResultSet rs = null;
 		try {
 			PreparedStatement st = null;
 
 			st = (PreparedStatement) ((java.sql.Connection) conexionConn)
 					.prepareStatement(sentenciasBBDD.CONSULTAPRODUCTOLOCAL);
 			st.setString(1, NIFLocal);
-			ResultSet rs = st.executeQuery();
+			rs = st.executeQuery();
 
-			while (rs.next()) {
-				String nombre = rs.getString("a.nombre");
-				String pCompra = String.valueOf(rs.getDouble("a.PCompra"));
-				String pVenta = String.valueOf(rs.getDouble("p.PVenta"));
-				String tipo = rs.getString("a.Tipo");
-				String feCad = String.valueOf(rs.getDate("a.FeCad"));
-				String[] producto = new String[] { nombre, feCad, tipo, pCompra, pVenta };
-
-				listaProd.add(producto);
-			}
+			
 		} catch (SQLException sqlException) {
 			sqlException.printStackTrace();
 		}
-		return listaProd;
+		return rs;
 	}
 
 	public ArrayList<String[]> cogerProductosAprovisionamiento() {

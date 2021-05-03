@@ -3,7 +3,6 @@ package bbdd;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class Consultas {
 	
@@ -15,27 +14,15 @@ public class Consultas {
 		this.conexionConn =  conexion.getConn();
 	}
 	
-	public ArrayList<String[]> conseguirLocales() {
-		ArrayList<String[]> locales = new ArrayList<String[]>();
+	public ResultSet conseguirLocales() {
+		ResultSet rs = null;
 		try {
-			PreparedStatement st = null;
-			st = (PreparedStatement) ((java.sql.Connection) conexionConn).prepareStatement(sentenciasBBDD.CONSEGUIRLOCAL);
-			ResultSet rs = st.executeQuery();
-
-			try {
-				while (rs.next()) {
-					String nif = rs.getString("nif");
-					String nombre = rs.getString("nombre");
-					String tiponegocio = rs.getString("tiponegocio");
-					locales.add(new String[] {nif,nombre,tiponegocio});
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			PreparedStatement st = (PreparedStatement) ((java.sql.Connection) conexionConn).prepareStatement(sentenciasBBDD.CONSEGUIRLOCAL);
+			rs = st.executeQuery();
 		} catch (SQLException sqlException) {
 			sqlException.printStackTrace();
 		}
-		return locales;
+		return rs;
 	}
 
 	public int leerNumTransBBDD() {
