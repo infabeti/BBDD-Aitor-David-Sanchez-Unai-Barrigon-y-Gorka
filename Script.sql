@@ -451,7 +451,7 @@ begin
 	select sum(TotalProducto) into totalProductos from lineaproducto where transaccion = numtrans;
     
     if comanda = true then   
-        select round(plato.pvp * lineaplato.cantidad,2) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
+        select sum(plato.pvp * lineaplato.cantidad) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
         and lineaplato.Transaccion = NumTrans;
 	end if;
     
