@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+<<<<<<< HEAD
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-13">
+=======
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-14">
+>>>>>>> main
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry kind="lib" path="conector/mysql-connector-java-5.1.6-bin.jar"/>
 	<classpathentry kind="lib" path="libreria/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="libreria/commons-pool-1.6.jar"/>
+=======
+>>>>>>> main
 	<classpathentry kind="output" path="bin"/>
 </classpath>
