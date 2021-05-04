@@ -150,6 +150,34 @@ constraint fk_carta_nif foreign key (nif) references establecimiento(nif) on upd
 constraint fk_carta_codigoplato foreign key (codigoplato) references plato(codigoplato) on update cascade
 );
 
+create table Fecha(
+fecha date
+);
+
+create table tiene(
+NIF char(9),
+Cantidad int,
+CodigoAlimento int,
+constraint fk_tiene_nif foreign key (nif) references establecimiento(nif) on update cascade,
+constraint fk_tiene_CodigoAlimento foreign key (CodigoAlimento) references alimento (CodigoAlimento) on update cascade
+);
+
+create table HistoricoLocal(
+NIF char(9),
+CodigoAlimento int,
+Probabilidad double,
+constraint fk_HistoricoLocal_nif foreign key (nif) references establecimiento(nif) on update cascade,
+constraint fk_HistoricoLocal_CodigoAlimento foreign key (CodigoAlimento) references alimento (CodigoAlimento) on update cascade
+);
+
+create table HistoricoGlobal(
+CodigoAlimento int,
+CodigoAlimento2 int,
+Probabilidad double,
+constraint fk_HistoricoGlobal_CodigoAlimento foreign key (CodigoAlimento) references alimento (CodigoAlimento) on update cascade,
+constraint fk_HistoricoGlobal_CodigoAlimento2 foreign key (CodigoAlimento2) references alimento (CodigoAlimento) on update cascade
+);
+
 /* Inserciones establecimientos */
 
 insert into establecimiento
@@ -451,11 +479,7 @@ begin
 	select sum(TotalProducto) into totalProductos from lineaproducto where transaccion = numtrans;
     
     if comanda = true then   
-<<<<<<< HEAD
         select round(plato.pvp * lineaplato.cantidad,2) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
-=======
-        select sum(plato.pvp * lineaplato.cantidad) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
->>>>>>> main
         and lineaplato.Transaccion = NumTrans;
 	end if;
     
@@ -466,7 +490,6 @@ end
 
 /*select ImporteTransacion(4, false) "importeTotal";*/
 
-<<<<<<< HEAD
 /*PROCEDIMIENTO*/
 delimiter //
 create procedure calculoBayesLocal(niflocal varchar(9), cod1 int, cod2 int) begin
@@ -516,5 +539,3 @@ select concat(porcentaje) "Mensaje %";
 
 end;
 //
-=======
->>>>>>> main
