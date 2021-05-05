@@ -39,6 +39,18 @@ public class Conexion {
 				// Definimos el tamano del pool de conexiones
 				ds.setInitialSize(50);// 50 Conexiones iniciales
 				ds.setMaxIdle(10);
+				if (ds == null) {
+					
+					ds = new BasicDataSource();
+					ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+					ds.setUsername(USUARIO); 
+					ds.setPassword(PASSWORD);
+					ds.setUrl(URLPUERTO3306);
+					ds.setMaxOpenPreparedStatements(10);
+					ds.setMinIdle(50);
+					ds.setMaxIdle(100);
+				}
+				
 			}
 
 		} catch (ClassNotFoundException e) {
