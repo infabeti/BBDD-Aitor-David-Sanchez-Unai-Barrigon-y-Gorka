@@ -1,3 +1,4 @@
+
 create database retoGrupo1 collate utf8mb4_spanish_ci;
 
 use retoGrupo1;
@@ -146,37 +147,41 @@ constraint fk_suministro_transaccion foreign key (Transaccion) references aprovi
 create table carta(
 NIF char(9),
 codigoplato int,
+constraint pk_carta primary key (NIF, codigoplato),
 constraint fk_carta_nif foreign key (nif) references establecimiento(nif) on update cascade,
 constraint fk_carta_codigoplato foreign key (codigoplato) references plato(codigoplato) on update cascade
 );
 
-create table Fecha(
-fecha date
+create table fecha(
+fecha datetime primary key 
 );
 
-create table tiene(
-NIF char(9),
-Cantidad int,
-CodigoAlimento int,
-constraint fk_tiene_nif foreign key (nif) references establecimiento(nif) on update cascade,
-constraint fk_tiene_CodigoAlimento foreign key (CodigoAlimento) references alimento (CodigoAlimento) on update cascade
-);
-
-create table HistoricoLocal(
-NIF char(9),
-CodigoAlimento int,
-Probabilidad double,
-constraint fk_HistoricoLocal_nif foreign key (nif) references establecimiento(nif) on update cascade,
-constraint fk_HistoricoLocal_CodigoAlimento foreign key (CodigoAlimento) references alimento (CodigoAlimento) on update cascade
-);
-
-create table HistoricoGlobal(
-CodigoAlimento int,
+create table historicolocal(
+NIF1 char(9),
+NIF2 char(9),
+CodigoAlimento1 int,
 CodigoAlimento2 int,
-Probabilidad double,
-constraint fk_HistoricoGlobal_CodigoAlimento foreign key (CodigoAlimento) references alimento (CodigoAlimento) on update cascade,
-constraint fk_HistoricoGlobal_CodigoAlimento2 foreign key (CodigoAlimento2) references alimento (CodigoAlimento) on update cascade
+fecha datetime,
+probabilidad double,
+constraint pk_historicolocal primary key (NIF1, NIF2, CodigoAlimento1, CodigoAlimento2, fecha),
+constraint fk_historicolocal_codigoal1 foreign key (CodigoAlimento1) references alimento(CodigoAlimento) on update cascade,
+constraint fk_historicolocal_codigoal2 foreign key (CodigoAlimento2) references alimento(CodigoAlimento) on update cascade,
+constraint fk_historicolocal_NIF1 foreign key (NIF1) references establecimiento(NIF) on update cascade,
+constraint fk_historicolocal_NIF2 foreign key (NIF2) references establecimiento(NIF) on update cascade,
+constraint fk_historicolocal_fecha foreign key (fecha) references fecha(fecha) on update cascade
 );
+
+create table historicoglobal(
+CodigoAlimento1 int,
+CodigoAlimento2 int,
+fecha datetime,
+probabilidad double,
+constraint pk_historicoglobal primary key (CodigoAlimento1, CodigoAlimento2, fecha),
+constraint fk_historicoglobal_codigoal1 foreign key (CodigoAlimento1) references alimento(CodigoAlimento) on update cascade,
+constraint fk_historicoglobal_codigoal2 foreign key (CodigoAlimento2) references alimento(CodigoAlimento) on update cascade,
+constraint fk_historicoglobal_fecha foreign key (fecha) references fecha(fecha) on update cascade
+);
+
 
 /* Inserciones establecimientos */
 
@@ -479,7 +484,7 @@ begin
 	select sum(TotalProducto) into totalProductos from lineaproducto where transaccion = numtrans;
     
     if comanda = true then   
-        select round(plato.pvp * lineaplato.cantidad,2) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
+        select sum(plato.pvp * lineaplato.cantidad) into totalPlatos from plato, lineaplato where plato.codigoplato = lineaplato.codigoplato
         and lineaplato.Transaccion = NumTrans;
 	end if;
     
@@ -489,53 +494,3 @@ end
 // 
 
 /*select ImporteTransacion(4, false) "importeTotal";*/
-
-/*PROCEDIMIENTO*/
-delimiter //
-create procedure calculoBayesLocal(niflocal varchar(9), cod1 int, cod2 int) begin
-
-declare porcentaje double;
-declare codigo1 int;
-declare codigo2 int;
-declare cant1 int;
-declare cant2 int;
-declare TipoL enum('BAR','CAFETERIA','RESTAURANTE');
-             
-select CodigoAlimento into codigo1 from producto where CodigoAlimento = cod1;
-select CodigoAlimento into codigo2 from producto where CodigoAlimento = cod2;
-
-if codigo1 not in(Select CodigoAlimento
-from stock where NIF=niflocal)
-then
-             
-select concat("No existe un alimento con el código introducido en el local introducido");
-
-end if;
-
-if codigo2 not in(Select CodigoAlimento
-from stock where NIF=niflocal)
-then
-
-select concat("No existe un alimento con el código introducido en el local introducido");
-end if;
-
-
-select count(Transaccion) into cant1
-from lineaproducto
-where CodigoAlimento = codigo1
-and Transaccion in (select Transaccion
-from lineaproducto
-                  where CodigoAlimento = codigo2);
-
-select count(Transaccion) into cant2
-from lineaproducto
-where CodigoAlimento = codigo1;
-
- set porcentaje =  cant1/cant2;
- set porcentaje = porcentaje*100;
- set TipoL = (select tiponegocio from establecimiento where NIF=niflocal);
-
-select concat(porcentaje) "Mensaje %";
-
-end;
-//

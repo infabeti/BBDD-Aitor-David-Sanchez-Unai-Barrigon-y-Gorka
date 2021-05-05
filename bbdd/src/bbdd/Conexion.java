@@ -1,12 +1,15 @@
 package bbdd;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import org.apache.commons.dbcp.BasicDataSource;
+
 
 public class Conexion {
 
 	// constructor de la clase
+	private static BasicDataSource ds = null;
 	private final String NOMBREBD = "retoGrupo1";
 	private final String USUARIO = "root";
 	private final String PASSWORD = "elorrieta";
@@ -16,41 +19,30 @@ public class Conexion {
 	private final String URLPUERTO3306 = "jdbc:mysql://localhost:3306/" + NOMBREBD + "?useUnicode=true&use"
 			+ "JDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&" + "serverTimezone=UTC";
 
-	private Connection conn = null;
-
-	public Connection getConn() {
-		return conn;
-	}
-
-	public void setConn(Connection conn) {
-		this.conn = conn;
+	public Connection getConn() throws SQLException {
+		return ds.getConnection();
 	}
 
 	// constructor de la clase
 	public Conexion() {
 		try {
-			// obtener el driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			if (ds == null) {
+				// obtener el driver
+				Class.forName("com.mysql.cj.jdbc.Driver");
 
-			// obtener la conexion
-			conn = DriverManager.getConnection(URLPUERTO33060, USUARIO, PASSWORD);
+				ds = new BasicDataSource();
+				ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+				ds.setUsername(USUARIO);
+				ds.setPassword(PASSWORD);
+				ds.setUrl(URLPUERTO33060);
+				ds.setMaxOpenPreparedStatements(10);
+				// Definimos el tamano del pool de conexiones
+				ds.setInitialSize(50);// 50 Conexiones iniciales
+				ds.setMaxIdle(10);
+			}
 
-			if (conn == null) {
-				conn = DriverManager.getConnection(URLPUERTO3306, USUARIO, PASSWORD);
-			}
-			if (conn == null) {
-				System.out.println("******************NO SE PUDO CONECTAR " + NOMBREBD);
-				System.exit(0);
-			} else {
-				System.out.println(
-						"Conectado correctamente a la base de datos " + NOMBREBD + " con el usuario " + USUARIO);
-			}
 		} catch (ClassNotFoundException e) {
 			System.out.println("ocurre una ClassNotFoundException : " + e.getMessage());
-			System.exit(0);
-		} catch (SQLException e) {
-			System.out.println("ocurre una SQLException: " + e.getMessage());
-			System.out.println("Verifique que Mysql esta encendido...");
 			System.exit(0);
 		}
 	}

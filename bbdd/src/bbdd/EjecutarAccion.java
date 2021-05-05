@@ -8,7 +8,7 @@ public class EjecutarAccion {
 
 	private java.sql.Connection connection;
 
-	public EjecutarAccion(Conexion conexion) {
+	public EjecutarAccion(Conexion conexion) throws SQLException {
 		connection = conexion.getConn();
 	}
 
