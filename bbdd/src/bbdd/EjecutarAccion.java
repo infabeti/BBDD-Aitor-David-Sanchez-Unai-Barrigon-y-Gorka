@@ -6,12 +6,6 @@ import java.sql.SQLException;
 
 public class EjecutarAccion {
 
-	private java.sql.Connection connection;
-
-	public EjecutarAccion(Conexion conexion) throws SQLException {
-		connection = conexion.getConn();
-	}
-
 	public ResultSet consultar(PreparedStatement ps) {
 
 		ResultSet resultSet = null;
