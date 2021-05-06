@@ -20,12 +20,14 @@ public class Conexion {
 			+ "JDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&" + "serverTimezone=UTC";
 
 	public Connection getConn() throws SQLException {
+		System.out.println("Cogiendo una conex");
 		return ds.getConnection();
 	}
 
 	// constructor de la clase
-	public Conexion() {
+	public Conexion() throws SQLException {
 		try {
+			System.out.println("Entro");
 			if (ds == null) {
 				// obtener el driver
 				Class.forName("com.mysql.cj.jdbc.Driver");
@@ -35,10 +37,12 @@ public class Conexion {
 				ds.setUsername(USUARIO);
 				ds.setPassword(PASSWORD);
 				ds.setUrl(URLPUERTO33060);
-				ds.setMaxOpenPreparedStatements(10);
+				ds.setMaxOpenPreparedStatements(100);
 				// Definimos el tamano del pool de conexiones
-				ds.setInitialSize(50);// 50 Conexiones iniciales
-				ds.setMaxIdle(10);
+				ds.setInitialSize(500);// 50 Conexiones iniciales
+				ds.setMaxIdle(100);
+				ds.setMaxTotal(100);
+				
 				if (ds == null) {
 					
 					ds = new BasicDataSource();
