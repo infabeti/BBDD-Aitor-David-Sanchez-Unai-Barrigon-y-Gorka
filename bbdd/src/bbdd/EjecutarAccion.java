@@ -18,11 +18,12 @@ public class EjecutarAccion {
 		return resultSet;
 	}
 
-	public void insertar(PreparedStatement ps) {
+	public void insertar(PreparedStatement ps) throws SQLException {
 		try {
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		ps.close();
 	}
 }

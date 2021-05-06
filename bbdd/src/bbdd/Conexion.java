@@ -20,18 +20,17 @@ public class Conexion {
 			+ "JDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&" + "serverTimezone=UTC";
 
 	public Connection getConn() throws SQLException {
-		System.out.println("Cogiendo una conex");
+		System.out.println("Numero de conexiones activas: " + (ds.getNumActive()+1));
 		return ds.getConnection();
 	}
 
 	// constructor de la clase
 	public Conexion() throws SQLException {
 		try {
-			System.out.println("Entro");
+			
 			if (ds == null) {
 				// obtener el driver
 				Class.forName("com.mysql.cj.jdbc.Driver");
-
 				ds = new BasicDataSource();
 				ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
 				ds.setUsername(USUARIO);
@@ -42,6 +41,7 @@ public class Conexion {
 				ds.setInitialSize(500);// 50 Conexiones iniciales
 				ds.setMaxIdle(100);
 				ds.setMaxTotal(100);
+				System.out.println("Conectado a la base de datos " + NOMBREBD + " con el usuario " + USUARIO + " con el puerto 33060");
 				
 				if (ds == null) {
 					
@@ -53,6 +53,8 @@ public class Conexion {
 					ds.setMaxOpenPreparedStatements(10);
 					ds.setMinIdle(50);
 					ds.setMaxIdle(100);
+					System.out.println("Conectado a la base de datos " + NOMBREBD + " con el usuario " + USUARIO + " con el puerto 33060");
+
 				}
 				
 			}
