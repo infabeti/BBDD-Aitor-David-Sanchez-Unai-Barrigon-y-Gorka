@@ -20,7 +20,6 @@ public class Conexion {
 			+ "JDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&" + "serverTimezone=UTC";
 
 	public Connection getConn() throws SQLException {
-		System.out.println("Numero de conexiones activas: " + ds.getNumActive());
 		return ds.getConnection();
 	}
 
