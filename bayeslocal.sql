@@ -1,85 +1,56 @@
 delimiter //
-CREATE PROCEDURE calculoBayesLocal (niflocal varchar(9), cod1 int, cod2 int)
-BEGIN
-
-declare porcentaje double;
-declare nifl char(9);
-declare cant1 int;
-declare cant2 int;
-declare trans1 int;
-declare trans2 int;
-
-declare errornotfound boolean default 0;
-declare continue handler for not found set errornotfound = 1;
+create procedure NaiveBayesLocal(codigo int, niflocal char(9)) begin
 
 
-
-select NIF into nifl from establecimiento where NIF = niflocal;
-
-
-
-	if errornotfound = 1 then
-
-		select concat("No existe un local con el NIF ", niflocal, " en la base de datos") "Error NIF";
-        
-	else
-        select count(Transaccion) into trans1 from lineaproducto where CodigoAlimento = cod1;
-        
-			if cod1 not in(Select CodigoAlimento from stock where NIF=niflocal) then
-        
-          
-				select concat("No existe un alimento con el código ",cod1," introducido en el local introducido") "Error Stock";
-                        
-                        
-                   
-                        
-			elseif  trans1=0 then
-         
-         
-				select concat("No hay transacciones disponibles para el codigo ", cod1) "Error";
-        
-        
-			else
-        
-				select count(Transaccion) into trans2 from lineaproducto where CodigoAlimento = cod2;
-                
-                if cod2  not in(Select CodigoAlimento from stock where NIF=niflocal) then
-        
-        
-					select concat("No existe un alimento con el código ",cod2," introducido en el local introducido") "Error Stock";
-     
-
-				elseif trans2 = 0  then
-         
-         
-					select concat("No hay transacciones disponibles para el codigo ", cod2) "Error";
-		
-				else
-        
-         select count(Transaccion) into cant1
+ declare errornotfound boolean default 0;
+ declare contador int default 0;
+ declare codali int;
+ declare cantidad int default 10;
+ declare cant1 int;
+ declare cant2 int;
+ declare porcentaje double;
+ declare fechaActual datetime default current_timestamp();
+ declare C cursor for Select CodigoAlimento from producto order by CodigoAlimento desc;
+ declare continue handler for NOT FOUND set errornotfound = 1;
+ 
+ open C;
+ fetch C into codali;
+ 
+ while errornotfound = 0 do
+ 
+   select count(Transaccion) into cant1
 		from lineaproducto
-		where CodigoAlimento = cod1
+		where CodigoAlimento = codigo
 		and Transaccion in (select Transaccion
 		from lineaproducto
-		where CodigoAlimento = cod2);
- 
-		select count(Transaccion) into cant2
+		where CodigoAlimento = codali) order by count(Transaccion) desc;
+        
+        select count(Transaccion) into cant2
 		from lineaproducto
-		where CodigoAlimento = cod1;
+		where CodigoAlimento = codali order by count(Transaccion) desc;
+        
+	set porcentaje = round((cant1/cant2)*100,2);
+    
+	set fechaActual = DATE_ADD(fechaActual, interval contador second);
+      
+  
+  
+  
+    if codali != codigo then
+
+            if porcentaje >= 0 then
+				insert into fecha values(fechaActual);
+				insert into historicolocal values(niflocal,niflocal,Codigo,codali,fechaActual,porcentaje);
+				select concat(porcentaje, " Porcentaje de compra conjunta % con ",codali) "Porcentaje de compra conjunta:";
+	
+            end if;
+            
+			end if;
+
+        
+	fetch C into codali;
+  set contador = contador + 1;
+  
+ end while;
  
-		set porcentaje =  cant1/cant2;
-		set porcentaje = porcentaje*100;
- 
-    select concat(round(porcentaje,2)) "Porcentaje de compra conjunta %";
-        
-        
-		end if;
-
-		end if;
-        
-        end if;
-        
-
-
-end
-//
+end//

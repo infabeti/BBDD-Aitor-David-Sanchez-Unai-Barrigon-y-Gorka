@@ -11,6 +11,7 @@ create procedure NaiveBayes(codigo int) begin
  declare porcentaje double;
  declare fechaActual datetime default current_timestamp();
  declare C cursor for Select CodigoAlimento from producto order by CodigoAlimento desc;
+ declare continue handler for NOT FOUND set errornotfound = 1;
  
  open C;
  fetch C into codali;
@@ -30,20 +31,21 @@ create procedure NaiveBayes(codigo int) begin
         
 	set porcentaje = round((cant1/cant2)*100,2);
     
-    
-    insert into fecha values(fechaActual);
-  insert into historicoglobal (CodigoAlimento1,CodigoAlimento2,fecha,probabilidad) values(Codigo,Codali,fechaActual,porcentaje);
+	set fechaActual = DATE_ADD(fechaActual, interval contador second);
+      
+  
+  
+  
     if codali != codigo then
 
             if porcentaje >= 0 then
-            
-				select concat(porcentaje) "Porcentaje de compra conjunta % con ",codali ;
+				insert into fecha values(fechaActual);
+				insert into historicoglobal values(Codigo,Codali,fechaActual,porcentaje);
+				select concat(porcentaje, " Porcentaje de compra conjunta % con ",codali) "Porcentaje de compra conjunta:";
 	
             end if;
             
-
-               
-    end if;
+			end if;
 
         
 	fetch C into codali;
@@ -51,9 +53,4 @@ create procedure NaiveBayes(codigo int) begin
   
  end while;
  
-
-
-
-
-end
-//
+end//
