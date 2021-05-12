@@ -1,6 +1,6 @@
 delimiter //
-create procedure NaiveBayes(codigo int) begin
-
+create procedure NaiveBayes(codigo int) 
+begin
 
  declare errornotfound boolean default 0;
  declare contador int default 0;
@@ -9,9 +9,13 @@ create procedure NaiveBayes(codigo int) begin
  declare cant1 int;
  declare cant2 int;
  declare porcentaje double;
- declare fechaActual datetime default current_timestamp();
+ declare duplicateEntry boolean default 0;
+ 
+ declare fechaActual date default current_date();
+ 
  declare C cursor for Select CodigoAlimento from producto order by CodigoAlimento desc;
  declare continue handler for NOT FOUND set errornotfound = 1;
+ declare continue handler for 1062 set duplicateEntry = 1;
  
  open C;
  fetch C into codali;
@@ -39,6 +43,7 @@ create procedure NaiveBayes(codigo int) begin
     if codali != codigo then
 
             if porcentaje >= 0 then
+            /* VER SI EXISTE ESA FECHA, SI EXISTE NO INSERTAR */
 				insert into fecha values(fechaActual);
 				insert into historicoglobal values(Codigo,Codali,fechaActual,porcentaje);
 				select concat(porcentaje, " Porcentaje de compra conjunta % con ",codali) "Porcentaje de compra conjunta:";
@@ -53,4 +58,4 @@ create procedure NaiveBayes(codigo int) begin
   
  end while;
  
-end//
+end;//
