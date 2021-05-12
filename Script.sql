@@ -493,4 +493,109 @@ begin
 end
 // 
 
-/*select ImporteTransacion(4, false) "importeTotal";*/
+/* PROCEDIMIENTOS CALCULOS PROBABILIDADES */
+delimiter //
+create procedure CalculoProbabilidadesGLOBAL() 
+begin
+	declare alimento1 int default 1;
+    declare alimento2 int;
+    declare maxCodAl int;
+
+	declare cantTransEnLasQhayAlimento1 int;
+	declare vecesAlimento2Respecto1 int;
+    declare probabilidad float;
+	declare fechaHora timestamp default current_timestamp();
+
+   
+    select max(CodigoAlimento) into maxCodAl from alimento;
+    insert into fecha values(fechaHora);
+    
+	while alimento1 <= maxCodAl do
+    
+		select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
+			where CodigoAlimento = alimento1
+			and transaccion in (select transaccion from actividad where fecha > (current_date() - 7));
+		
+        set alimento2 = 1;
+        
+        while alimento2 <= maxCodAl do        
+			if alimento1 != alimento2 then
+				select count(transaccion) into vecesAlimento2Respecto1 from lineaproducto 
+					where CodigoAlimento = alimento2
+					and transaccion in (select transaccion 
+					from lineaproducto 
+					where CodigoAlimento = alimento1)
+					and transaccion in (select transaccion from actividad where fecha > (current_date() - 7));
+					
+				set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
+				insert into historicoglobal values(alimento1,alimento2,fechaHora,probabilidad);
+			end if;
+            
+			set alimento2 = alimento2 + 1;
+            
+        end while;
+        
+        set alimento1 = alimento1 + 1;
+        
+	end while;
+ 
+end;// 
+
+delimiter //
+create procedure CalculoProbabilidadesLOCAL() 
+begin
+	declare alimento1 int default 1;
+    declare alimento2 int;
+    declare maxCodAl int;
+	declare cantTransEnLasQhayAlimento1 int;
+	declare vecesAlimento2Respecto1 int;
+    declare probabilidad float;
+	declare fechaHora timestamp default current_timestamp();
+    declare fin boolean default 0;
+    declare NIFLOCAL char(9);
+    
+       
+    declare cursor1 cursor for select nif from establecimiento;
+    declare continue handler for not found set fin = 1;
+    
+    select max(CodigoAlimento) into maxCodAl from alimento;
+
+    insert into fecha values(fechaHora);
+    
+    open cursor1;
+		fetch cursor1 into NIFLOCAL;
+			while fin = 0 do
+
+			while alimento1 <= maxCodAl do
+
+			if (select count(*) from stock where nif = niflocal and codigoalimento = alimento1) > 0 then
+				select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
+					where CodigoAlimento = alimento1
+					and transaccion in (select transaccion from actividad where nif = niflocal and fecha > (current_date() - 7));
+				
+				set alimento2 = 1;
+				
+					while alimento2 <= maxCodAl do        
+						if alimento1 != alimento2 and (select count(*) from stock where nif = niflocal and codigoalimento = alimento2) > 0 then
+							select count(transaccion) into vecesAlimento2Respecto1 from lineaproducto 
+								where CodigoAlimento = alimento2
+								and transaccion in (select transaccion 
+								from lineaproducto 
+								where CodigoAlimento = alimento1)
+								and transaccion in (select transaccion from actividad where nif = niflocal and fecha > (current_date() - 7));
+								
+							set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
+                            /*select concat('Alimento1: ' ,alimento1, ' Alimento2: ', alimento2, ' probabilidad' , probabilidad, ' vecesAlimento2Respecto1: ' ,vecesAlimento2Respecto1, ' cantTransEnLasQhayAlimento1; ',cantTransEnLasQhayAlimento1) mensaje;*/
+							insert into historicolocal values(niflocal,niflocal,alimento1,alimento2,fechaHora,probabilidad);
+						end if;
+						
+						set alimento2 = alimento2 + 1;
+					end while;
+            end if;
+					set alimento1 = alimento1 + 1;       
+			end while;
+	
+		fetch cursor1 into NIFLOCAL;
+		end while;
+	close cursor1;
+end;// 
