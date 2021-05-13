@@ -301,6 +301,9 @@ insert into stock
 values('12345678H', 8, 69);
 
 insert into stock
+values('12345678H',9 , 9);
+
+insert into stock
 values('12345678H', 11, 90);
 
 insert into stock
@@ -329,6 +332,9 @@ values('34567899K', 6, 100);
 
 insert into stock
 values('34567899K', 7, 58);
+
+insert into stock
+values('34567899K', 9, 58);
 
 insert into stock
 values('34567899K', 8, 69);
@@ -371,6 +377,9 @@ values('23456789J', 11, 90);
 
 insert into stock
 values('23456789J', 12, 150);
+
+insert into stock
+values('23456789J', 9, 150);
 
 insert into stock
 values('23456789J', 10, 14);
@@ -528,6 +537,7 @@ begin
 					and transaccion in (select transaccion from actividad where fecha > (current_date() - 7));
 					
 				set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
+                if probabilidad = null then set probabilidad = 0; end if;
 				insert into historicoglobal values(alimento1,alimento2,fechaHora,probabilidad);
 			end if;
             
@@ -587,6 +597,7 @@ begin
 								and transaccion in (select transaccion from actividad where nif = niflocal and fecha > (current_date() - 7));
 								
 							set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
+                            if probabilidad = null then set probabilidad = 0; end if;
                             /*select concat('Alimento1: ' ,alimento1, ' Alimento2: ', alimento2, ' probabilidad' , probabilidad, ' vecesAlimento2Respecto1: ' ,vecesAlimento2Respecto1, ' cantTransEnLasQhayAlimento1; ',cantTransEnLasQhayAlimento1) mensaje;*/
 							insert into historicolocal values(niflocal,niflocal,alimento1,alimento2,fechaHora,probabilidad);
 						end if;
