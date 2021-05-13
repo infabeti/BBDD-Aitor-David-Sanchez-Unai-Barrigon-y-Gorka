@@ -537,7 +537,7 @@ begin
 					and transaccion in (select transaccion from actividad where fecha > (current_date() - 7));
 					
 				set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
-                if probabilidad = null then set probabilidad = 0; end if;
+				if probabilidad is null then set probabilidad = 0; end if;
 				insert into historicoglobal values(alimento1,alimento2,fechaHora,probabilidad);
 			end if;
             
@@ -597,7 +597,7 @@ begin
 								and transaccion in (select transaccion from actividad where nif = niflocal and fecha > (current_date() - 7));
 								
 							set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
-                            if probabilidad = null then set probabilidad = 0; end if;
+                            if probabilidad is null then set probabilidad = 0; end if;
                             /*select concat('Alimento1: ' ,alimento1, ' Alimento2: ', alimento2, ' probabilidad' , probabilidad, ' vecesAlimento2Respecto1: ' ,vecesAlimento2Respecto1, ' cantTransEnLasQhayAlimento1; ',cantTransEnLasQhayAlimento1) mensaje;*/
 							insert into historicolocal values(niflocal,niflocal,alimento1,alimento2,fechaHora,probabilidad);
 						end if;
