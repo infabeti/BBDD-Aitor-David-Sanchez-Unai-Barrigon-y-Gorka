@@ -509,14 +509,13 @@ begin
 	declare alimento1 int default 1;
     declare alimento2 int;
     declare maxCodAl int;
-
 	declare cantTransEnLasQhayAlimento1 int;
 	declare vecesAlimento2Respecto1 int;
     declare probabilidad float;
-	declare fechaHora timestamp default current_timestamp();
-
+    declare fechaHora timestamp default current_timestamp();
    
     select max(CodigoAlimento) into maxCodAl from alimento;
+    
     insert into fecha values(fechaHora);
     
 	while alimento1 <= maxCodAl do
@@ -549,12 +548,12 @@ begin
         
 	end while;
     /* PARA QUE SALTEN EN CASCADA Y NO TENER QUE LLAMAR DESDE LA APP DE MANERA INUTIL E INEFICIENTE */
-    call CalculoProbabilidadesLOCAL();
+    call CalculoProbabilidadesLOCAL(fechaHora);
  
 end;// 
 
 delimiter //
-create procedure CalculoProbabilidadesLOCAL() 
+create procedure CalculoProbabilidadesLOCAL(fechaHora timestamp) 
 begin
 	declare alimento1 int default 1;
     declare alimento2 int;
@@ -562,7 +561,6 @@ begin
 	declare cantTransEnLasQhayAlimento1 int;
 	declare vecesAlimento2Respecto1 int;
     declare probabilidad float;
-	declare fechaHora timestamp default current_timestamp();
     declare fin boolean default 0;
     declare NIFLOCAL char(9);
     
@@ -571,15 +569,18 @@ begin
     declare continue handler for not found set fin = 1;
     
     select max(CodigoAlimento) into maxCodAl from alimento;
-
-    insert into fecha values(fechaHora);
     
+
     open cursor1;
-		fetch cursor1 into NIFLOCAL;
-			while fin = 0 do
+	fetch cursor1 into NIFLOCAL;
 
+    while fin = 0 do
+    
+		
+		
+        set alimento1 = 1;
+	
 			while alimento1 <= maxCodAl do
-
 			if (select count(*) from stock where nif = niflocal and codigoalimento = alimento1) > 0 then
 				select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
 					where CodigoAlimento = alimento1
@@ -607,7 +608,6 @@ begin
             end if;
 					set alimento1 = alimento1 + 1;       
 			end while;
-	
 		fetch cursor1 into NIFLOCAL;
 		end while;
 	close cursor1;
