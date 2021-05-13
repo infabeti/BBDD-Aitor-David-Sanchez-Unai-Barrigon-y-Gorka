@@ -538,6 +538,8 @@ begin
         set alimento1 = alimento1 + 1;
         
 	end while;
+    /* PARA QUE SALTEN EN CASCADA Y NO TENER QUE LLAMAR DESDE LA APP DE MANERA INUTIL E INEFICIENTE */
+    call CalculoProbabilidadesLOCAL();
  
 end;// 
 
