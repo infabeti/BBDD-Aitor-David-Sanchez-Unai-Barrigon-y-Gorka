@@ -157,17 +157,14 @@ fecha datetime primary key
 );
 
 create table historicolocal(
-NIF1 char(9),
-NIF2 char(9),
+NIF char(9),
 CodigoAlimento1 int,
 CodigoAlimento2 int,
 fecha datetime,
 probabilidad double,
-constraint pk_historicolocal primary key (NIF1, NIF2, CodigoAlimento1, CodigoAlimento2, fecha),
-constraint fk_historicolocal_codigoal1 foreign key (CodigoAlimento1) references stock(CodigoAlimento) on update cascade,
-constraint fk_historicolocal_codigoal2 foreign key (CodigoAlimento2) references stock(CodigoAlimento) on update cascade,
-constraint fk_historicolocal_NIF1 foreign key (NIF1) references establecimiento(NIF) on update cascade,
-constraint fk_historicolocal_NIF2 foreign key (NIF2) references establecimiento(NIF) on update cascade,
+constraint pk_historicolocal primary key (NIF, CodigoAlimento1, CodigoAlimento2, fecha),
+constraint fk_historicolocal_codigoal1 foreign key (NIF,CodigoAlimento1) references stock(NIF,CodigoAlimento) on update cascade,
+constraint fk_historicolocal_codigoal2 foreign key (NIF,CodigoAlimento2) references stock(NIF,CodigoAlimento) on update cascade,
 constraint fk_historicolocal_fecha foreign key (fecha) references fecha(fecha) on update cascade
 );
 
@@ -513,6 +510,8 @@ begin
 	declare vecesAlimento2Respecto1 int;
     declare probabilidad float;
     declare fechaHora timestamp default current_timestamp();
+    declare fechaDia date default current_date();
+
    
     select max(CodigoAlimento) into maxCodAl from alimento;
     
@@ -522,7 +521,7 @@ begin
     
 		select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
 			where CodigoAlimento = alimento1
-			and transaccion in (select transaccion from actividad where fecha > (current_date() - 7));
+			and transaccion in (select transaccion from actividad where fechaDia > (current_date() - 7));
 		
         set alimento2 = 1;
         
@@ -548,12 +547,12 @@ begin
         
 	end while;
     /* PARA QUE SALTEN EN CASCADA Y NO TENER QUE LLAMAR DESDE LA APP DE MANERA INUTIL E INEFICIENTE */
-    call CalculoProbabilidadesLOCAL(fechaHora);
+    call CalculoProbabilidadesLOCAL(fechaHora, fechaDia);
  
 end;// 
 
 delimiter //
-create procedure CalculoProbabilidadesLOCAL(fechaHora timestamp) 
+create procedure CalculoProbabilidadesLOCAL(fechaHora timestamp, fechaDia date) 
 begin
 	declare alimento1 int default 1;
     declare alimento2 int;
@@ -584,7 +583,7 @@ begin
 			if (select count(*) from stock where nif = niflocal and codigoalimento = alimento1) > 0 then
 				select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
 					where CodigoAlimento = alimento1
-					and transaccion in (select transaccion from actividad where nif = niflocal and fecha > (current_date() - 7));
+					and transaccion in (select transaccion from actividad where nif = niflocal and fechaDia > (current_date() - 7));
 				
 				set alimento2 = 1;
 				
