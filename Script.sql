@@ -1,3 +1,4 @@
+
 create database retoGrupo1 collate utf8mb4_spanish_ci;
 
 use retoGrupo1;
@@ -146,9 +147,38 @@ constraint fk_suministro_transaccion foreign key (Transaccion) references aprovi
 create table carta(
 NIF char(9),
 codigoplato int,
+constraint pk_carta primary key (NIF, codigoplato),
 constraint fk_carta_nif foreign key (nif) references establecimiento(nif) on update cascade,
 constraint fk_carta_codigoplato foreign key (codigoplato) references plato(codigoplato) on update cascade
 );
+
+create table fecha(
+fecha datetime primary key 
+);
+
+create table historicolocal(
+NIF char(9),
+CodigoAlimento1 int,
+CodigoAlimento2 int,
+fecha datetime,
+probabilidad double,
+constraint pk_historicolocal primary key (NIF, CodigoAlimento1, CodigoAlimento2, fecha),
+constraint fk_historicolocal_codigoal1 foreign key (NIF,CodigoAlimento1) references stock(NIF,CodigoAlimento) on update cascade,
+constraint fk_historicolocal_codigoal2 foreign key (NIF,CodigoAlimento2) references stock(NIF,CodigoAlimento) on update cascade,
+constraint fk_historicolocal_fecha foreign key (fecha) references fecha(fecha) on update cascade
+);
+
+create table historicoglobal(
+CodigoAlimento1 int,
+CodigoAlimento2 int,
+fecha datetime,
+probabilidad double,
+constraint pk_historicoglobal primary key (CodigoAlimento1, CodigoAlimento2, fecha),
+constraint fk_historicoglobal_codigoal1 foreign key (CodigoAlimento1) references alimento(CodigoAlimento) on update cascade,
+constraint fk_historicoglobal_codigoal2 foreign key (CodigoAlimento2) references alimento(CodigoAlimento) on update cascade,
+constraint fk_historicoglobal_fecha foreign key (fecha) references fecha(fecha) on update cascade
+);
+
 
 /* Inserciones establecimientos */
 
@@ -268,6 +298,9 @@ insert into stock
 values('12345678H', 8, 69);
 
 insert into stock
+values('12345678H',9 , 9);
+
+insert into stock
 values('12345678H', 11, 90);
 
 insert into stock
@@ -296,6 +329,9 @@ values('34567899K', 6, 100);
 
 insert into stock
 values('34567899K', 7, 58);
+
+insert into stock
+values('34567899K', 9, 58);
 
 insert into stock
 values('34567899K', 8, 69);
@@ -338,6 +374,9 @@ values('23456789J', 11, 90);
 
 insert into stock
 values('23456789J', 12, 150);
+
+insert into stock
+values('23456789J', 9, 150);
 
 insert into stock
 values('23456789J', 10, 14);
@@ -460,5 +499,115 @@ begin
 end
 // 
 
-/*select ImporteTransacion(4, false) "importeTotal";*/
+/* PROCEDIMIENTOS CALCULOS PROBABILIDADES */
+delimiter //
+create procedure CalculoProbabilidadesGLOBAL() 
+begin
+	declare alimento1 int default 1;
+    declare alimento2 int;
+    declare maxCodAl int;
+	declare cantTransEnLasQhayAlimento1 int;
+	declare vecesAlimento2Respecto1 int;
+    declare probabilidad float;
+    declare fechaHora timestamp default current_timestamp();
+    declare fechaDia date default current_date();
 
+   
+    select max(CodigoAlimento) into maxCodAl from alimento;
+    
+    insert into fecha values(fechaHora);
+    
+	while alimento1 <= maxCodAl do
+    
+		select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
+			where CodigoAlimento = alimento1
+			and transaccion in (select transaccion from actividad where fechaDia > (current_date() - 7));
+		
+        set alimento2 = 1;
+        
+        while alimento2 <= maxCodAl do        
+			if alimento1 != alimento2 then
+				select count(transaccion) into vecesAlimento2Respecto1 from lineaproducto 
+					where CodigoAlimento = alimento2
+					and transaccion in (select transaccion 
+					from lineaproducto 
+					where CodigoAlimento = alimento1)
+					and transaccion in (select transaccion from actividad where fecha > (current_date() - 7));
+					
+				set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
+				if probabilidad is null then set probabilidad = 0; end if;
+				insert into historicoglobal values(alimento1,alimento2,fechaHora,probabilidad);
+			end if;
+            
+			set alimento2 = alimento2 + 1;
+            
+        end while;
+        
+        set alimento1 = alimento1 + 1;
+        
+	end while;
+    /* PARA QUE SALTEN EN CASCADA Y NO TENER QUE LLAMAR DESDE LA APP DE MANERA INUTIL E INEFICIENTE */
+    call CalculoProbabilidadesLOCAL(fechaHora, fechaDia);
+ 
+end;// 
+
+delimiter //
+create procedure CalculoProbabilidadesLOCAL(fechaHora timestamp, fechaDia date) 
+begin
+	declare alimento1 int default 1;
+    declare alimento2 int;
+    declare maxCodAl int;
+	declare cantTransEnLasQhayAlimento1 int;
+	declare vecesAlimento2Respecto1 int;
+    declare probabilidad float;
+    declare fin boolean default 0;
+    declare NIFLOCAL char(9);
+    
+       
+    declare cursor1 cursor for select nif from establecimiento;
+    declare continue handler for not found set fin = 1;
+    
+    select max(CodigoAlimento) into maxCodAl from alimento;
+    
+
+    open cursor1;
+	fetch cursor1 into NIFLOCAL;
+
+    while fin = 0 do
+    
+		
+		
+        set alimento1 = 1;
+	
+			while alimento1 <= maxCodAl do
+			if (select count(*) from stock where nif = niflocal and codigoalimento = alimento1) > 0 then
+				select count(transaccion) into cantTransEnLasQhayAlimento1 from lineaproducto 
+					where CodigoAlimento = alimento1
+					and transaccion in (select transaccion from actividad where nif = niflocal and fechaDia > (current_date() - 7));
+				
+				set alimento2 = 1;
+				
+					while alimento2 <= maxCodAl do        
+						if alimento1 != alimento2 and (select count(*) from stock where nif = niflocal and codigoalimento = alimento2) > 0 then
+							select count(transaccion) into vecesAlimento2Respecto1 from lineaproducto 
+								where CodigoAlimento = alimento2
+								and transaccion in (select transaccion 
+								from lineaproducto 
+								where CodigoAlimento = alimento1)
+								and transaccion in (select transaccion from actividad where nif = niflocal and fecha > (current_date() - 7));
+								
+							set probabilidad = round(vecesAlimento2Respecto1/cantTransEnLasQhayAlimento1,2)*100;
+                            if probabilidad is null then set probabilidad = 0; end if;
+                            /*select concat('Alimento1: ' ,alimento1, ' Alimento2: ', alimento2, ' probabilidad' , probabilidad, ' vecesAlimento2Respecto1: ' ,vecesAlimento2Respecto1, ' cantTransEnLasQhayAlimento1; ',cantTransEnLasQhayAlimento1) mensaje;*/
+							insert into historicolocal values(niflocal,alimento1,alimento2,fechaHora,probabilidad);
+						end if;
+						
+						set alimento2 = alimento2 + 1;
+					end while;
+            end if;
+					set alimento1 = alimento1 + 1;       
+			end while;
+		fetch cursor1 into NIFLOCAL;
+		end while;
+	close cursor1;
+end;// 

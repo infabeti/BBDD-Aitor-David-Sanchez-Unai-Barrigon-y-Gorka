@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="bbdd/src"/>
+	<classpathentry kind="lib" path="bbdd/conector/mysql-connector-java-5.1.6-bin.jar"/>
+	<classpathentry kind="lib" path="bbdd/libreria/commons-dbcp2-2.8.0.jar"/>
+	<classpathentry kind="lib" path="bbdd/libreria/commons-pool2-2.9.0.jar"/>
+	<classpathentry kind="output" path="bbdd/bin"/>
+</classpath>
